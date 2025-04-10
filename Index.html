@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Course Payment - Romantic Tech Team</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #1a1a1a;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 183, 255, 0.5);
+    }
+    h1 {
+      color: #00b7ff;
+      text-align: center;
+    }
+    p, label {
+      text-align: center;
+      color: #ccc;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .checkbox-group label {
+      text-align: left;
+      display: block;
+      margin: 5px 0;
+    }
+    .button {
+      display: block;
+      width: 90%;
+      padding: 12px;
+      margin: 20px auto 10px;
+      background: #00b7ff;
+      color: #fff;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .button:hover {
+      background: #009cd6;
+    }
+    .popup {
+      display: none;
+      background: #00b7ff;
+      color: #000;
+      text-align: center;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+    .total {
+      font-weight: bold;
+      text-align: center;
+      font-size: 1.2em;
+      margin-top: 10px;
+      color: #00ffcc;
+    }
+    .note {
+      background: #111;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.9em;
+      color: #aaa;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Course Payment</h1>
+    <p>Select your preferred courses and fill in your details.</p>
+
+    <label for="name">Full Name</label>
+    <input type="text" id="name" placeholder="Enter your full name"/>
+
+    <label for="number">WhatsApp Number (with Country Code)</label>
+    <input type="text" id="number" placeholder="e.g. +233540964040"/>
+
+    <label for="country">Select Your Country</label>
+    <select id="country">
+      <option value="GHS">Ghana</option>
+      <option value="NGN">Nigeria</option>
+      <option value="USD">Other</option>
+    </select>
+
+    <label>Select Courses</label>
+    <div class="checkbox-group">
+      <label><input type="checkbox" class="course" value="300" data-name="CODING & WEB DEVELOPMENT (basics)"> CODING & WEB DEVELOPMENT (basics) - Gh300</label>
+      <label><input type="checkbox" class="course" value="40" data-name="WHATSAPP BOT DEPLOYMENT"> WHATSAPP BOT DEPLOYMENT - Gh40</label>
+      <label><input type="checkbox" class="course" value="30" data-name="WHATSAPP CHATBOT CREATION"> WHATSAPP CHATBOT CREATION - Gh30</label>
+      <label><input type="checkbox" class="course" value="20" data-name="WHATSAPP AUTOMATION"> WHATSAPP AUTOMATION - Gh20</label>
+      <label><input type="checkbox" class="course" value="200" data-name="HACKING AND CYBERSECURITY (basics)"> HACKING AND CYBERSECURITY (basics) - Gh200</label>
+      <label><input type="checkbox" class="course" value="100" data-name="CODING (basics)"> CODING (basics) - Gh100</label>
+      <label><input type="checkbox" class="course" value="50" data-name="VIDEO EDITING"> VIDEO EDITING - Gh50</label>
+      <label><input type="checkbox" class="course" value="40" data-name="GRAPHIC DESIGNING"> GRAPHIC DESIGNING - Gh40</label>
+    </div>
+
+    <div class="total" id="totalAmount">Total: Gh0</div>
+
+    <label for="payment">Select Payment Method</label>
+    <select id="payment">
+      <option value="Momo">Mobile Money (MTN, Vodafone, AirtelTigo)</option>
+      <option value="Bank">Bank Transfer</option>
+      <option value="Crypto">Crypto (USDT/BTC)</option>
+    </select>
+
+    <div class="note">
+      After selecting your courses and clicking "Proceed to Payment", you’ll be redirected to WhatsApp to finalize your registration with Mr. Romantic.
+    </div>
+
+    <label for="message">Additional Message (Optional)</label>
+    <textarea id="message" rows="4" placeholder="Any message for Mr. Romantic..."></textarea>
+    <div id="errorMsg" style="color: red; text-align: center; margin-top: 10px;"></div>
+    <button class="button" onclick="submitCourseForm()">Proceed to Payment</button>
+    <div class="popup" id="popup">Thanks for enrolling in Romantic Tech Courses!</div>
+  </div>
+<p style="text-align:center; color:#555; margin-top: 40px; font-size: 0.9em;">
+  &copy; 2025 Mr. Romantic. All rights reserved.</p>
+ <script>
+ const exchangeRates = {
+  GHS: 1,
+  NGN: 102.10,    // 1 Ghana cedi = 102.10 Naira
+  USD: 0.06489    // 1 Ghana cedi = 0.06489 USD
+};
+
+  const countrySelect = document.getElementById('country');
+  const totalAmountDiv = document.getElementById('totalAmount');
+
+  document.querySelectorAll('.course').forEach(checkbox => {
+    checkbox.addEventListener('change', updateTotal);
+  });
+
+  countrySelect.addEventListener('change', updateTotal);
+
+  function updateTotal() {
+    const selectedCurrency = countrySelect.value;
+    let total = 0;
+    document.querySelectorAll('.course:checked').forEach(cb => {
+      total += parseFloat(cb.value);
+    });
+    const converted = (total * exchangeRates[selectedCurrency]).toFixed(2);
+    const symbol = selectedCurrency === 'GHS' ? 'Gh' : selectedCurrency === 'NGN' ? '₦' : '$';
+    totalAmountDiv.textContent = `Total: ${symbol}${converted}`;
+  }
+
+  function submitCourseForm() {
+  const name = document.getElementById('name').value.trim();
+  const number = document.getElementById('number').value.trim();
+  const country = document.getElementById('country').value;
+  const payment = document.getElementById('payment').value;
+  const message = document.getElementById('message').value.trim();
+  const selectedCourses = Array.from(document.querySelectorAll('.course:checked')).map(cb => cb.getAttribute('data-name'));
+
+  const errorMsg = document.getElementById('errorMsg');
+  errorMsg.textContent = ''; // clear previous errors
+
+  if (!name || !number || selectedCourses.length === 0) {
+    errorMsg.textContent = 'Please fill in all required fields and select at least one course.';
+
+    // Hide error message after 2 minutes
+    setTimeout(() => {
+      errorMsg.textContent = '';
+    }, 12000); // 120000ms = 2 minutes
+
+    return;
+  }
+
+  let total = 0;
+  selectedCourses.forEach(course => {
+    const checkbox = Array.from(document.querySelectorAll('.course')).find(cb => cb.getAttribute('data-name') === course);
+    total += parseFloat(checkbox.value);
+  });
+
+  const converted = (total * exchangeRates[country]).toFixed(2);
+  const currency = country === 'GHS' ? 'Gh' : country === 'NGN' ? '₦' : '$';
+
+  const text = `Hello Mr. Romantic, someone just enrolled in a course!
+
+Full Name: ${name}
+WhatsApp Number: ${number}
+Country: ${country}
+Payment Method: ${payment}
+Selected Courses: ${selectedCourses.join(', ')}
+Total: ${currency}${converted}
+Message: ${message || 'No message provided.'}`;
+
+  document.getElementById('popup').style.display = 'block';
+  const encodedText = encodeURIComponent(text);
+  const yourWhatsApp = "233540964040";
+
+  setTimeout(() => {
+    document.getElementById('popup').style.display = 'none';
+    window.open(`https://wa.me/${yourWhatsApp}?text=${encodedText}`, '_blank');
+  }, 2000);
+}
+</script>
+</body>
+        </html>
